@@ -14,10 +14,24 @@ import {
   initializeDatabase,
 } from "../database/database";
 
+function formatAccountType(type: string) {
+  switch (type) {
+    case "checking":
+      return "Checking";
+    case "savings":
+      return "Savings";
+    case "credit":
+      return "Credit Card";
+    default:
+      return type;
+  }
+}
+
 export default function HomeScreen() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [accountName, setAccountName] = useState("");
   const [startingBalance, setStartingBalance] = useState("");
+  const [accountType, setAccountType] = useState("checking");
 
   useEffect(() => {
     async function setupDatabase() {
@@ -43,13 +57,14 @@ export default function HomeScreen() {
       return;
     }
 
-    await addAccount(accountName.trim(), "checking", balance);
+    await addAccount(accountName.trim(), accountType, balance);
 
     const savedAccounts = await getAccounts();
     setAccounts(savedAccounts);
 
     setAccountName("");
     setStartingBalance("");
+    setAccountType("checking");
   }
 
   return (
@@ -101,6 +116,61 @@ export default function HomeScreen() {
           keyboardType="decimal-pad"
         />
 
+        <Text style={styles.typeLabel}>Account Type</Text>
+
+        <View style={styles.typeSelector}>
+          <Pressable
+            style={[
+              styles.typeButton,
+              accountType === "checking" && styles.typeButtonSelected,
+            ]}
+            onPress={() => setAccountType("checking")}
+          >
+            <Text
+              style={[
+                styles.typeButtonText,
+                accountType === "checking" && styles.typeButtonTextSelected,
+              ]}
+            >
+              Checking
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={[
+              styles.typeButton,
+              accountType === "savings" && styles.typeButtonSelected,
+            ]}
+            onPress={() => setAccountType("savings")}
+          >
+            <Text
+              style={[
+                styles.typeButtonText,
+                accountType === "savings" && styles.typeButtonTextSelected,
+              ]}
+            >
+              Savings
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={[
+              styles.typeButton,
+              accountType === "credit" && styles.typeButtonSelected,
+            ]}
+            onPress={() => setAccountType("credit")}
+          >
+            <Text
+              style={[
+                styles.typeButtonText,
+                accountType === "credit" && styles.typeButtonTextSelected,
+              ]}
+            >
+              Credit Card
+            </Text>
+          </Pressable>
+        </View>
+
         <Pressable style={styles.addButton} onPress={handleAddAccount}>
           <Text style={styles.addButtonText}>Add Account</Text>
         </Pressable>
@@ -111,7 +181,7 @@ export default function HomeScreen() {
       ) : (
         accounts.map((account) => (
           <View key={account.id} style={styles.balanceCard}>
-            <Text style={styles.label}>{account.type}</Text>
+            <Text style={styles.label}>{formatAccountType(account.type)}</Text>
             <Text style={styles.amount}>{account.name}</Text>
             <Text style={styles.balance}>${account.balance.toFixed(2)}</Text>
           </View>
@@ -194,6 +264,35 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: "white",
     fontSize: 16,
+    fontWeight: "600",
+  },
+  typeLabel: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 8,
+  },
+  typeSelector: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 12,
+  },
+  typeButton: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+    borderRadius: 8,
+    backgroundColor: "white",
+    alignItems: "center",
+  },
+  typeButtonSelected: {
+    backgroundColor: "#222",
+  },
+  typeButtonText: {
+    fontSize: 13,
+    color: "#222",
+  },
+  typeButtonTextSelected: {
+    color: "white",
     fontWeight: "600",
   },
 });
