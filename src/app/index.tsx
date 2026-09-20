@@ -32,6 +32,7 @@ export default function HomeScreen() {
   const [accountName, setAccountName] = useState("");
   const [startingBalance, setStartingBalance] = useState("");
   const [accountType, setAccountType] = useState("checking");
+  const [formError, setFormError] = useState("");
 
   useEffect(() => {
     async function setupDatabase() {
@@ -53,9 +54,17 @@ export default function HomeScreen() {
   async function handleAddAccount() {
     const balance = Number(startingBalance);
 
-    if (!accountName.trim() || Number.isNaN(balance)) {
+    if (!accountName.trim()) {
+      setFormError("Enter an account name.");
       return;
     }
+
+    if (!startingBalance.trim() || Number.isNaN(balance)) {
+      setFormError("Enter a valid starting balance.");
+      return;
+    }
+
+    setFormError("");
 
     await addAccount(accountName.trim(), accountType, balance);
 
@@ -105,14 +114,20 @@ export default function HomeScreen() {
           style={styles.input}
           placeholder="Account name"
           value={accountName}
-          onChangeText={setAccountName}
+          onChangeText={(text) => {
+            setAccountName(text);
+            setFormError("");
+          }}
         />
 
         <TextInput
           style={styles.input}
           placeholder="Starting balance"
           value={startingBalance}
-          onChangeText={setStartingBalance}
+          onChangeText={(text) => {
+            setStartingBalance(text);
+            setFormError("");
+          }}
           keyboardType="decimal-pad"
         />
 
@@ -170,6 +185,8 @@ export default function HomeScreen() {
             </Text>
           </Pressable>
         </View>
+
+        {formError ? <Text style={styles.errorText}>{formError}</Text> : null}
 
         <Pressable style={styles.addButton} onPress={handleAddAccount}>
           <Text style={styles.addButtonText}>Add Account</Text>
@@ -294,5 +311,10 @@ const styles = StyleSheet.create({
   typeButtonTextSelected: {
     color: "white",
     fontWeight: "600",
+  },
+  errorText: {
+    color: "#b00020",
+    marginBottom: 10,
+    fontSize: 14,
   },
 });
