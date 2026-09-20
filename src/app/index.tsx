@@ -1,6 +1,21 @@
+import { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { initializeDatabase } from "../database/database";
 
 export default function HomeScreen() {
+  useEffect(() => {
+    async function setupDatabase() {
+      try {
+        await initializeDatabase();
+        console.log("Database initialized successfully");
+      } catch (error) {
+        console.error("Failed to initialize database:", error);
+      }
+    }
+
+    setupDatabase();
+  }, []);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Budget</Text>
